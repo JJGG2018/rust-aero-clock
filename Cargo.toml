@@ -11,4 +11,4 @@ tower-http = { version = "0.6", features = [
     "trace",
 ] } # Archivos estáticos
 tracing = "0.1" # Logs básicos
-tracing-subscriber = "0.3"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
