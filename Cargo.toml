@@ -1,5 +1,5 @@
 [package]
-name = "rust-clock"
+name = "rust-aero-clock"
 version = "0.1.0"
 edition = "2021"
 

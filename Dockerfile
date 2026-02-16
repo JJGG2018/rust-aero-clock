@@ -16,12 +16,12 @@ FROM alpine:3.19
 WORKDIR /app
 
 # Copiar el binario y el HTML
-COPY --from=builder /usr/src/rust-clock/target/release/rust-clock .
+COPY --from=builder /usr/src/rust-clock/target/release/rust-aero-clock .
 # IMPORTANTE: Copiar index.html al contenedor
 COPY --from=builder /usr/src/rust-clock/index.html .
 
-# Exponer puerto 3000
-EXPOSE 3000
+# Exponer puerto 3030
+EXPOSE 3030
 
 # Ejecutar
-CMD ["./rust-clock"]
+CMD ["./rust-aero-clock"]
