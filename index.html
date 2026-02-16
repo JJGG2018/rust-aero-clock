@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rust Aero Clock</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;700&display=swap');
+
+        :root {
+            --bg-start: #0f172a;
+            --bg-end: #1e293b;
+            --glass: rgba(255, 255, 255, 0.05);
+            --border: rgba(255, 255, 255, 0.1);
+            --text: #ffffff;
+            --accent: #6366f1;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            width: 100vw;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: radial-gradient(circle at center, var(--bg-end), var(--bg-start));
+            font-family: 'Space Grotesk', sans-serif;
+            color: var(--text);
+            overflow: hidden;
+            transition: background 1s ease;
+        }
+
+        /* Fondo animado abstracto */
+        .blob {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(80px);
+            opacity: 0.4;
+            z-index: 0;
+            animation: float 20s infinite alternate;
+        }
+
+        .blob-1 {
+            top: 10%;
+            left: 10%;
+            width: 50vw;
+            height: 50vw;
+            background: #4f46e5;
+            animation-delay: 0s;
+        }
+
+        .blob-2 {
+            bottom: 10%;
+            right: 10%;
+            width: 40vw;
+            height: 40vw;
+            background: #ec4899;
+            animation-delay: -5s;
+        }
+
+        .blob-3 {
+            top: 40%;
+            left: 40%;
+            width: 30vw;
+            height: 30vw;
+            background: #06b6d4;
+            animation-delay: -10s;
+        }
+
+        @keyframes float {
+            0% {
+                transform: translate(0, 0) scale(1);
+            }
+
+            100% {
+                transform: translate(50px, 50px) scale(1.1);
+            }
+        }
+
+        /* Contenedor Glassmorphism */
+        .clock-container {
+            position: relative;
+            z-index: 10;
+            padding: 5vw 8vw;
+            background: var(--glass);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--border);
+            border-radius: 3rem;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            transition: transform 0.3s ease;
+        }
+
+        .clock-container:hover {
+            transform: scale(1.02);
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+
+        /* Hora Digital */
+        .time-display {
+            font-size: 15vw;
+            /* Responsive font size based on viewport width */
+            font-weight: 700;
+            line-height: 1;
+            letter-spacing: -0.05em;
+            text-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            background: linear-gradient(to bottom right, #fff, #cbd5e1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            display: flex;
+            align-items: baseline;
+            gap: 2vw;
+        }
+
+        .seconds {
+            font-size: 5vw;
+            font-weight: 300;
+            color: var(--accent);
+            opacity: 0.8;
+            -webkit-text-fill-color: var(--accent);
+            /* Override gradient */
+        }
+
+        .date-display {
+            font-size: 2vw;
+            text-transform: uppercase;
+            letter-spacing: 0.5em;
+            margin-top: 1rem;
+            opacity: 0.7;
+            font-weight: 300;
+        }
+
+        /* Mobile tweaks */
+        @media (max-width: 768px) {
+            .clock-container {
+                padding: 10vw 5vw;
+                border-radius: 2rem;
+                width: 90%;
+            }
+
+            .time-display {
+                font-size: 20vw;
+                flex-direction: column;
+                align-items: center;
+                gap: 0;
+            }
+
+            .seconds {
+                font-size: 8vw;
+                margin-top: -2vw;
+            }
+
+            .date-display {
+                font-size: 4vw;
+                margin-top: 2rem;
+            }
+        }
+
+        /* Animación de segundos */
+        .pulse {
+            animation: pulse 1s infinite;
+        }
+
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+                opacity: 1;
+            }
+
+            50% {
+                transform: scale(0.95);
+                opacity: 0.7;
+            }
+
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        .footer {
+            position: absolute;
+            bottom: 20px;
+            font-size: 0.8rem;
+            opacity: 0.4;
+            letter-spacing: 1px;
+            z-index: 10;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Background Elements -->
+    <div class="blob blob-1"></div>
+    <div class="blob blob-2"></div>
+    <div class="blob blob-3"></div>
+
+    <!-- Main Clock -->
+    <div class="clock-container">
+        <div class="time-display">
+            <span id="hours">00</span><span class="pulse">:</span><span id="minutes">00</span>
+            <span id="seconds" class="seconds">00</span>
+        </div>
+        <div class="date-display" id="date">
+            CARGANDO FECHA...
+        </div>
+    </div>
+
+    <div class="footer">POWERED BY RUST + AXUM</div>
+
+    <script>
+        function updateClock() {
+            const now = new Date();
+
+            // Pad numbers with leading zero
+            const pad = (num) => num.toString().padStart(2, '0');
+
+            const hours = pad(now.getHours());
+            const minutes = pad(now.getMinutes());
+            const seconds = pad(now.getSeconds());
+
+            // Update DOM
+            document.getElementById('hours').innerText = hours;
+            document.getElementById('minutes').innerText = minutes;
+            document.getElementById('seconds').innerText = seconds;
+
+            // Date formatting
+            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            const dateStr = now.toLocaleDateString('es-ES', options);
+            document.getElementById('date').innerText = dateStr;
+
+            // Dynamic background subtle shift
+            // document.body.style.filter = `hue-rotate(${now.getSeconds() * 6}deg)`; // Too intense maybe?
+        }
+
+        // Run immediately and then every second
+        updateClock();
+        setInterval(updateClock, 1000);
+    </script>
+</body>
+
+</html>

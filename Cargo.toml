@@ -1,0 +1,14 @@
+[package]
+name = "rust-clock"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+axum = "0.8" # Router web moderno
+tokio = { version = "1.0", features = ["full"] } # Ejecución asíncrona
+tower-http = { version = "0.6", features = [
+    "fs",
+    "trace",
+] } # Archivos estáticos
+tracing = "0.1" # Logs básicos
+tracing-subscriber = "0.3"
