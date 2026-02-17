@@ -1,8 +1,4 @@
-use axum::{
-    response::Html,
-    routing::get,
-    Router,
-};
+use axum::{response::Html, routing::get, Router};
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
 
 #[tokio::main]
@@ -16,9 +12,12 @@ async fn main() {
     // 2. Rutas: Solo una, la raíz "/"
     let app = Router::new().route("/", get(handler));
 
-    // 3. Servidor: Escuchar en 0.0.0.0:3000
-    let listener = tokio::net::TcpListener::bind("0.0.0.0:3000").await.unwrap();
-    println!("⏰ Rust Aero Clock online en http://localhost:3000");
+    // 3. Servidor: Configurar puerto desde variable de entorno o usar 3030 por defecto
+    let port = std::env::var("PORT").unwrap_or_else(|_| "3030".to_string());
+    let addr = format!("0.0.0.0:{}", port);
+
+    let listener = tokio::net::TcpListener::bind(&addr).await.unwrap();
+    println!("⏰ Rust Aero Clock online en http://localhost:{}", port);
     axum::serve(listener, app).await.unwrap();
 }
 
